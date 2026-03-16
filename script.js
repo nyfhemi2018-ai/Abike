@@ -1,10 +1,21 @@
+document.addEventListener("DOMContentLoaded", function(){
+
+const params = new URLSearchParams(window.location.search);
+const isHer = params.get("for") === "abike";
 const form = document.getElementById('wishForm');
 const wall = document.getElementById('wishWall');
 const upload = document.getElementById('mediaUpload');
 const recordBtn = document.getElementById('recordBtn');
 const preview = document.getElementById('previewVideo');
 
-let wishes = JSON.parse(localStorage.getItem('birthdayWishes')) || [];
+const lightBtn = document.getElementById("lightBtn");
+const songBtn = document.getElementById("songBtn");
+const noteBtn = document.getElementById("noteBtn");
+
+const songPlayer = document.getElementById("songPlayer");
+const romanticMusic = document.getElementById("romanticMusic");
+
+
 
 
 // RENDER WISHES
@@ -14,16 +25,16 @@ wall.innerHTML='';
 
 wishes.slice().reverse().forEach((w,index)=>{
 
-let mediaHTML = '';
+let mediaHTML='';
 
 if(w.media){
 
 if(w.mediaType === 'image'){
-mediaHTML = `<img src="${w.media}" class="img-fluid rounded mb-2">`
+mediaHTML=`<img src="${w.media}" class="img-fluid rounded mb-2">`
 }
 
 if(w.mediaType === 'video'){
-mediaHTML = `<video src="${w.media}" controls class="w-100 mb-2"></video>`
+mediaHTML=`<video src="${w.media}" controls class="w-100 mb-2"></video>`
 }
 
 }
@@ -31,7 +42,6 @@ mediaHTML = `<video src="${w.media}" controls class="w-100 mb-2"></video>`
 wall.innerHTML += `
 
 <div class="col-md-4">
-
 <div class="card p-3">
 
 <h5>${w.name}</h5>
@@ -46,7 +56,6 @@ Delete
 </button>
 
 </div>
-
 </div>
 
 `;
@@ -57,6 +66,8 @@ Delete
 
 
 // FORM SUBMIT
+if(form){
+
 form.addEventListener('submit',function(e){
 
 e.preventDefault();
@@ -70,9 +81,9 @@ if(file){
 
 const reader = new FileReader();
 
-reader.onload = function(){
+reader.onload=function(){
 
-let type = file.type.startsWith("image") ? "image" : "video";
+let type=file.type.startsWith("image")?"image":"video";
 
 wishes.push({
 name,
@@ -81,7 +92,7 @@ media:reader.result,
 mediaType:type
 });
 
-localStorage.setItem('birthdayWishes',JSON.stringify(wishes));
+
 
 form.reset();
 render();
@@ -94,7 +105,7 @@ reader.readAsDataURL(file);
 
 wishes.push({name,message});
 
-localStorage.setItem('birthdayWishes',JSON.stringify(wishes));
+
 
 form.reset();
 render();
@@ -103,8 +114,12 @@ render();
 
 });
 
+}
+
 
 // VIDEO RECORD PREVIEW
+if(recordBtn){
+
 recordBtn.addEventListener('click', async ()=>{
 
 let stream = await navigator.mediaDevices.getUserMedia({
@@ -113,24 +128,21 @@ audio:true
 });
 
 preview.style.display='block';
-preview.srcObject = stream;
+preview.srcObject=stream;
 
 });
 
+}
 
-// DELETE WISH (ADMIN)
-function deleteWish(index){
+
+// DELETE WISH
+window.deleteWish=function(index){
 
 let password = prompt("Admin password");
 
-if(password === "admin123"){
+if(password==="admin123"){
 
 wishes.splice(index,1);
-
-localStorage.setItem(
-"birthdayWishes",
-JSON.stringify(wishes)
-);
 
 render();
 
@@ -144,72 +156,82 @@ alert("Wrong password");
 
 
 // PRIVATE MESSAGE FLOW
-function showPrivateMessage(){
-
-document.getElementById("introScreen").style.display = "none";
-document.getElementById("privateMessage").style.display = "flex";
-
-}
-
-function showWishWall(){
-
-document.getElementById("privateMessage").style.display = "none";
-document.getElementById("mainSite").style.display = "block";
-
-}
-
-
-// SECRET LINK CHECK
-const params = new URLSearchParams(window.location.search);
-const isHer = params.get("for") === "her";
-
-if(!isHer){
+window.showPrivateMessage=function(){
 
 document.getElementById("introScreen").style.display="none";
+document.getElementById("privateMessage").style.display="flex";
+
+}
+
+
+window.showWishWall=function(){
+
 document.getElementById("privateMessage").style.display="none";
 document.getElementById("mainSite").style.display="block";
 
 }
 
 
-// INITIAL LOAD
-render();
-const lightBtn = document.getElementById("lightBtn");
-const songBtn = document.getElementById("songBtn");
-const noteBtn = document.getElementById("noteBtn");
-
-const songPlayer = document.getElementById("songPlayer");
-const romanticMusic = document.getElementById("romanticMusic");
-
-
 // TURN ON LIGHT
-lightBtn.addEventListener("click", () => {
+if(lightBtn){
+
+lightBtn.addEventListener("click",()=>{
 
 document.body.classList.add("lights-on");
 
-lightBtn.innerText = "Lights On ✨";
+lightBtn.innerText="Lights On ✨";
 
 });
+
+}
 
 
 // PLAY MAIN SONG
-songBtn.addEventListener("click", () => {
+if(songBtn){
+
+songBtn.addEventListener("click",()=>{
 
 songPlayer.play();
 
-songBtn.innerText = "Playing 🎵";
+songBtn.innerText="Playing 🎵";
 
 });
 
+}
+
 
 // OPEN LOVE NOTE
-noteBtn.addEventListener("click", () => {
+if(noteBtn){
 
-document.getElementById("introScreen").style.display = "none";
+noteBtn.addEventListener("click",()=>{
 
-document.getElementById("privateMessage").style.display = "flex";
+document.getElementById("introScreen").style.display="none";
 
-romanticMusic.volume = 0.3;
+document.getElementById("privateMessage").style.display="flex";
+
+if(romanticMusic){
+romanticMusic.volume=0.3;
 romanticMusic.play();
+}
+
+});
+
+}
+
+
+// SECRET LINK CONTROL
+if(!isHer){
+
+document.getElementById("introScreen").style.display="none";
+document.getElementById("privateMessage").style.display="none";
+document.getElementById("mainSite").style.display="block";
+
+}else{
+
+document.getElementById("mainSite").style.display="none";
+
+}
+
+render();
 
 });
